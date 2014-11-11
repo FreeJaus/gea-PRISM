@@ -23,14 +23,16 @@
 
 #include <unordered_map>
 #include "IListener.h"
+#include "Peer.h"
 
 class Rendezvous : public IListener {
 	
 	private:
 		
-		sock server;
+		typedef int socket;
+		socket server;
 		
-		std::unordered_map<std::string,sock> dht;
+		std::unordered_map<std::string,Peer> dht;
 		
 		static Rendezvous *myInstance;
 		
@@ -43,7 +45,7 @@ class Rendezvous : public IListener {
 		
 		virtual ILISTENER_RESULT Start();
 		virtual ILISTENER_RESULT Stop();
-		
+		virtual ILISTENER_RESULT BeginAccept();
 		
 };
 

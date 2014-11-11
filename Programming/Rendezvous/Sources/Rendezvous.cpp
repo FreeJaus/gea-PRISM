@@ -33,3 +33,7 @@ ILISTENER_RESULT Rendezvous::Start(){
 ILISTENER_RESULT Rendezvous::Stop(){
 	
 }
+
+ILISTENER_RESULT Rendezvous::BeginAccept(){
+	
+}

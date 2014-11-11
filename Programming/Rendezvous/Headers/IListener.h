@@ -39,6 +39,6 @@ class IListener {
 		
 		virtual ILISTENER_RESULT Start() = 0;
 		virtual ILISTENER_RESULT Stop() = 0;
-		
+		virtual ILISTENER_RESULT BeginAccept() = 0;
 	
 };
