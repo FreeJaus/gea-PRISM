@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "GUIManager.h"
 #include "d3dHook.h"
 
 APIHook<d3dHook::IDirect3D9__CreateDevice> *d3dHook::hkCreateDevice = nullptr;
@@ -70,19 +71,28 @@ bool d3dHook::Detach(){
 HRESULT CALLBACK d3dHook::CreateDeviceCallBack(LPDIRECT3DDEVICE9 Device, UINT Adapter, D3DDEVTYPE DeviceType,
 	HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS *pPresentationParameters, IDirect3DDevice9 **ppReturnedDeviceInterface){
 	HRESULT ret = hkCreateDevice->UnHook()(Device, Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
+	GUIManager::getInstance()->SetDevice(*ppReturnedDeviceInterface);
 	hkCreateDevice->Hook();
 	return ret;
 }
 
 HRESULT CALLBACK d3dHook::PresentCallBack(LPDIRECT3DDEVICE9 Device, const RECT *pSourceRect,
 	const RECT *pDestRect, HWND hDestWindowOverride, const RGNDATA *pDirtyRegion){
+	if (GUIManager::getInstance()->IsReady())
+		GUIManager::getInstance()->OnRender();
+	else
+		GUIManager::getInstance()->SetDevice(Device);
 	HRESULT ret = hkPresent->UnHook()(Device, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 	hkPresent->Hook();
 	return ret;
 }
 
 HRESULT CALLBACK d3dHook::ResetCallBack(LPDIRECT3DDEVICE9 Device, D3DPRESENT_PARAMETERS* pPresentationParameters){
+	if (GUIManager::getInstance()->IsReady())
+		GUIManager::getInstance()->OnLostDevice();
 	HRESULT ret = hkReset->UnHook()(Device, pPresentationParameters);
+	if (GUIManager::getInstance()->IsReady())
+		GUIManager::getInstance()->OnResetDevice();
 	hkReset->Hook();
 	return ret;
 }

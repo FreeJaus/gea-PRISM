@@ -84,6 +84,7 @@
     <ClInclude Include="CharacterList.h" />
     <ClInclude Include="d3dHook.h" />
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="GUIManager.h" />
     <ClInclude Include="HttpManager.h" />
     <ClInclude Include="APIHook.h" />
     <ClInclude Include="RegEx.h" />
@@ -103,6 +104,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="GUIManager.cpp" />
     <ClCompile Include="HttpManager.cpp" />
     <ClCompile Include="RegEx.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -110,6 +112,20 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Tibia Suite Unmanaged.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="PixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">3.0</ShaderModel>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PixelShader.h</HeaderFileOutput>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PixelMain</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="VertexShader.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VertexMain</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">3.0</ShaderModel>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VertexShader.h</HeaderFileOutput>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

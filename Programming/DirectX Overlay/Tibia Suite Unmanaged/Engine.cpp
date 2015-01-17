@@ -18,9 +18,8 @@ bool Engine::Injector::IsInjected(){
 	bool injected = false;
 	wchar_t buff[100];
 	DWORD dwLen = GetModuleFileNameW(GetModuleHandleW(NULL), buff, 100);
-	wchar_t *image = new wchar_t[dwLen];
+	wchar_t *image = new wchar_t[dwLen+1];
 	lstrcpynW(image, buff, (int)dwLen+1);
-	MessageBoxW(0, image, L"", 0);
 	if (wcsstr(image, L"WildStar32.exe"))
 		injected = true;
 	delete[] image;
@@ -37,7 +36,6 @@ DWORD Engine::Injector::GetProcessIdByExeName(LPWSTR szExeName){
 	if (Process32First(hSnapProcess, &pe32))
 	{
 		do
-
 		{
 			if (lstrcmpW(pe32.szExeFile, szExeName) == 0)
 			{

@@ -3,7 +3,7 @@
 #define JMP_SZ 6
 
 template<class T>
-class APIHook {
+class APIHook final {
 
 private:
 

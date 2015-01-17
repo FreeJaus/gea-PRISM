@@ -11,6 +11,7 @@
 #include <windows.h>
 #include <string>
 #include <d3d9.h>
+#include <atlbase.h>
 #include "Templates.h"
 
 #pragma comment(lib, "d3d9.lib")
