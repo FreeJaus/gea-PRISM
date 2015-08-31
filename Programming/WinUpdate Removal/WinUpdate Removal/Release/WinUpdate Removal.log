@@ -1,16 +1,16 @@
-﻿Build started 01/09/2015 0:39:19.
-     1>Project "c:\Users\kub0x\documents\visual studio 2013\Projects\WinUpdate Removal\WinUpdate Removal\WinUpdate Removal.vcxproj" on node 2 (Build target(s)).
+﻿Build started 01/09/2015 1:00:21.
+     1>Project "C:\Users\kub0x\Documents\Visual Studio 2013\Projects\WinUpdate Removal\WinUpdate Removal\WinUpdate Removal.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Release\WinUpdate Removal.pch" /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt "WinUpdate Removal.cpp"
          WinUpdate Removal.cpp
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"c:\users\kub0x\documents\visual studio 2013\Projects\WinUpdate Removal\Release\WinUpdate Removal.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"c:\users\kub0x\documents\visual studio 2013\Projects\WinUpdate Removal\Release\WinUpdate Removal.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"c:\users\kub0x\documents\visual studio 2013\Projects\WinUpdate Removal\Release\WinUpdate Removal.lib" /MACHINE:X86 /SAFESEH Release\stdafx.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\kub0x\Documents\Visual Studio 2013\Projects\WinUpdate Removal\Release\WinUpdate Removal.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\kub0x\Documents\Visual Studio 2013\Projects\WinUpdate Removal\Release\WinUpdate Removal.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\kub0x\Documents\Visual Studio 2013\Projects\WinUpdate Removal\Release\WinUpdate Removal.lib" /MACHINE:X86 /SAFESEH Release\stdafx.obj
          "Release\WinUpdate Removal.obj"
          Generating code
          Finished generating code
-         WinUpdate Removal.vcxproj -> c:\users\kub0x\documents\visual studio 2013\Projects\WinUpdate Removal\Release\WinUpdate Removal.exe
-     1>Done Building Project "c:\Users\kub0x\documents\visual studio 2013\Projects\WinUpdate Removal\WinUpdate Removal\WinUpdate Removal.vcxproj" (Build target(s)).
+         WinUpdate Removal.vcxproj -> C:\Users\kub0x\Documents\Visual Studio 2013\Projects\WinUpdate Removal\Release\WinUpdate Removal.exe
+     1>Done Building Project "C:\Users\kub0x\Documents\Visual Studio 2013\Projects\WinUpdate Removal\WinUpdate Removal\WinUpdate Removal.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:03.67
+Time Elapsed 00:00:02.17

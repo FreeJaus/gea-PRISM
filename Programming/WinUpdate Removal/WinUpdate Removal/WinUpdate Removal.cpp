@@ -31,7 +31,7 @@ void UninstallUpdate(wchar_t *params){
 
 vector<wstring> GetMaliciousKBs(){
 	vector<wstring> kbs;
-	std::ifstream file("C:\\Users\\kub0x\\Documents\\Visual Studio 2013\\Projects\\WinUpdate Removal\\Release\\kbs.txt");
+	std::ifstream file("kbs.txt");
 	std::string str;
 	while (std::getline(file, str))
 		kbs.push_back(wstring(str.begin(), str.end()));
