@@ -41,9 +41,7 @@ namespace HashBully
 			req.Host = "hashbully.freejaus.com";
 			req.KeepAlive = false;
 			using (HttpWebResponse resp = (HttpWebResponse)req.GetResponse ()){
-				using (Stream resStream = resp.GetResponseStream ())
-					resStream.Close ();
-				resp.Close ();
+				using (Stream resStream = resp.GetResponseStream ());
 			}
 		}
 
@@ -60,13 +58,10 @@ namespace HashBully
 			req.ContentLength = bytes.Length;
 			using (Stream reqStream = req.GetRequestStream ()) {
 				reqStream.Write (bytes, 0, bytes.Length);
-				reqStream.Close ();
 			}
 			using (HttpWebResponse resp = (HttpWebResponse)req.GetResponse ()){
 				cookies = resp.Cookies;
-				using (Stream resStream = resp.GetResponseStream ())
-					resStream.Close ();
-				resp.Close ();
+				using (Stream resStream = resp.GetResponseStream ());
 			}
 		}
 

@@ -6,11 +6,14 @@ namespace HashBully
 	{
 		public static void Main (string[] args)
 		{
-			//Login here
-			if (HttpHandler.GetInstance ().Login ("bully", "bully"))
-				Console.WriteLine ("logged");
-			Console.Read ();
-			HttpHandler.GetInstance ().LogOut ();
+			string username = Console.ReadLine ();
+			string password = Console.ReadLine ();
+			Console.Clear ();
+			if (HttpHandler.GetInstance ().Login (username, password)) {
+				Console.WriteLine ("Welcome to HashBully {0}!", username);
+				Console.WriteLine ("Logged on {0}", DateTime.Now.ToString ());
+				NATUPnP.GetInstance ().ScanDevices ();
+			}
 			Console.Read ();
 		}
 	}

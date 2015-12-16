@@ -49,7 +49,7 @@ namespace HashBully
 						string input = string.Empty;
 						foreach(string str in hashes)
 							input += str + " ";
-						HttpHandler.GetInstance().PostData("data=" + input.Substring(0, input.Length-1), "https://www.hashbully.freejaus.com/login.php");
+						HttpHandler.GetInstance().PostData("data=" + input.Substring(0, input.Length-1), "https://hashbully.freejaus.com/login.php");
 						hashes.Clear();
 					}
 					string word = GetWord(nodes.GetEnumerator());

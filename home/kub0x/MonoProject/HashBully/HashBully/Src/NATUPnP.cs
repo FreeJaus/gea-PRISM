@@ -14,19 +14,13 @@ namespace HashBully
 
 		private void OnDeviceFound(object sender, DeviceEventArgs args){
 			upnpdev = args.Device;
-			args.Device.CreatePortMap(new Mapping(Protocol.Tcp, 4444, 4444));
+			upnpdev.CreatePortMap(new Mapping(Protocol.Tcp, 4444, 4444));
+			Rendezvous.GetInstance ().PublishInfo (string.Format ("{0} {1}", 
+				upnpdev.GetExternalIP ().ToString (), upnpdev.LocalAddress.ToString ()));
 		}
 
 		private void OnDeviceLost(object sender, DeviceEventArgs args){
-			args.Device.DeletePortMap(new Mapping(Protocol.Tcp, 4444, 4444));
-		}
-
-		public IPAddress[] GetIPs(){
-			IPAddress[] ips = null;
-			if (upnpdev != null) {
-				ips = new IPAddress[2] { upnpdev.LocalAddress, upnpdev.GetExternalIP () };
-			}
-			return ips;
+			upnpdev	.DeletePortMap(new Mapping(Protocol.Tcp, 4444, 4444));
 		}
 
 		public void ScanDevices(){
