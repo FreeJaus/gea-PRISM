@@ -3,3 +3,4 @@
 /home/kub0x/MonoProject/HashBully/HashBully/bin/Debug/HashBully.exe
 /home/kub0x/MonoProject/HashBully/HashBully/obj/x86/Debug/HashBully.exe
 /home/kub0x/MonoProject/HashBully/HashBully/obj/x86/Debug/HashBully.exe.mdb
+/home/kub0x/MonoProject/HashBully/HashBully/bin/Debug/Mono.Nat.dll

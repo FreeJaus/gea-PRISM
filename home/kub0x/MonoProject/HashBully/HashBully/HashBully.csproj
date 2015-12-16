@@ -32,10 +32,26 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Numerics" />
+    <Reference Include="Mono.Nat">
+      <HintPath>..\packages\Mono.Nat.1.2.24.0\lib\net40\Mono.Nat.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Src\NATUPnP.cs" />
+    <Compile Include="Src\Singleton.cs" />
+    <Compile Include="Src\Generator.cs" />
+    <Compile Include="Src\Crypto.cs" />
+    <Compile Include="Src\HttpHandler.cs" />
+    <Compile Include="Src\Rendezvous.cs" />
+    <Compile Include="Src\NetClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Src\" />
+  </ItemGroup>
 </Project>
