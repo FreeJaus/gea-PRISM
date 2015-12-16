@@ -21,7 +21,7 @@ namespace HashBully
 
 		public void PublishInfo(string input) {
 			if (client.Connect (domain, port)) { //TODO Auth w/ sessid cookie
-				client.SendData (input);
+				//client.SendData (input);
 				ReadPeerList ();
 			}
 		}
@@ -29,9 +29,15 @@ namespace HashBully
 		private void ReadPeerList(){
 			string list = client.ReadData ();
 			if (list != null) {
-				string[] ips = list.Split (" ".ToCharArray ());
-				ConnectToPeer(IPAddress.Parse (ips [0]));
-				ConnectToPeer(IPAddress.Parse (ips [1]));
+				string[] spl = list.Split ("-".ToCharArray ());
+				string word = spl [0];
+				ulong nwords = ulong.Parse (spl [1]);
+				Generator.GetInstance ().Begin (word, nwords);
+				client = new NetClient ();
+				PublishInfo ("");
+				//string[] ips = list.Split (" ".ToCharArray ());
+				//ConnectToPeer(IPAddress.Parse (ips [0]));
+				//ConnectToPeer(IPAddress.Parse (ips [1]));
 			}
 		}
 

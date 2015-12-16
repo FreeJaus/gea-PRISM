@@ -14,7 +14,7 @@ namespace HashBully
 
 		private void OnDeviceFound(object sender, DeviceEventArgs args){
 			upnpdev = args.Device;
-			upnpdev.CreatePortMap(new Mapping(Protocol.Tcp, 4444, 4444));
+			//upnpdev.CreatePortMap(new Mapping(Protocol.Tcp, 4444, 4444));
 			Rendezvous.GetInstance ().PublishInfo (string.Format ("{0} {1}", 
 				upnpdev.GetExternalIP ().ToString (), upnpdev.LocalAddress.ToString ()));
 		}

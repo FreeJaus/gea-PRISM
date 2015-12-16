@@ -33,7 +33,7 @@ namespace HashBully
 				using (NetworkStream netStream = sock.GetStream()){
 					byte[] bytes = new byte[1024];
 					int readbytes = netStream.Read(bytes,0,bytes.Length);
-					Array.Resize(bytes, readbytes);
+					Array.Resize(ref bytes, readbytes);
 					recv = Encoding.ASCII.GetString(bytes);
 				}
 			}catch (Exception ex) { Console.WriteLine (ex.Message); }

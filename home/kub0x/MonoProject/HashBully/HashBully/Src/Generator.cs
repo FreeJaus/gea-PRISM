@@ -15,10 +15,13 @@ namespace HashBully
 
 		private Generator () : base() { running = false; }
 
-		public void Begin (){
+		public void Begin (string word, ulong nwords){
 			if (!running) {
 				running = true;
-				GenerateWords ();
+				Console.WriteLine ("start={0} end={1}", word, nwords.ToString ());
+				GenerateWords (word, nwords);
+				Console.WriteLine ("Finished interval");
+				Stop ();
 			}
 		}
 
@@ -38,31 +41,36 @@ namespace HashBully
 			}
 		}
 
-		private void GenerateWords(){
-			for (int i = 1; i <= 5; i++) {
-				for (int k = 0; k < i; k++)
-					nodes.AddLast (dict [0]);
+		private void UploadHashes(){
+			if (hashes.Capacity <= hashes.Count){
+				Console.WriteLine ("Sending hashes to server...");
+				string input = string.Empty;
+				foreach(string str in hashes)
+					input += str + " ";
+				HttpHandler.GetInstance().PostData("data=" + input.Substring(0, input.Length-1), "https://hashbully.freejaus.com/index/upload.php");
+				hashes.Clear();
+			}
+		}
+
+		private void GenerateWords(string _word, ulong nwords){
+			try{
+				for (int k = 0; k < _word.Length; k++)
+					nodes.AddLast(_word[k]);
 				//Parallel.ForEach(Range(1, BigInteger.Pow(dict.Length, i)), j=>{
-				for (BigInteger j = 1; j < (BigInteger)Math.Pow(dict.Length, i); j++){
+				for (BigInteger j = 1; j < nwords; j++){
 					//mlock.WaitOne();
-					if (hashes.Capacity <= hashes.Count){
-						string input = string.Empty;
-						foreach(string str in hashes)
-							input += str + " ";
-						HttpHandler.GetInstance().PostData("data=" + input.Substring(0, input.Length-1), "https://hashbully.freejaus.com/login.php");
-						hashes.Clear();
-					}
+					UploadHashes();
 					string word = GetWord(nodes.GetEnumerator());
 					List<String> _hashes = Crypto.GetInstance().ComputeHashes(word);
 					hashes.Add(String.Format("{0},{1},{2},{3}", word, _hashes[0], _hashes[1], _hashes[2]));
-					Console.WriteLine(word);
-					foreach(string str in _hashes)
-						Console.WriteLine(str);
+					//Console.WriteLine(word);
+					//foreach(string str in _hashes)
+					//	Console.WriteLine(str);
 					Permute(nodes.Last);
 					//mlock.Set();
 					//});
 				}
-			}
+			}catch{}
 		}
 
 		public void Stop(){
