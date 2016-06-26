@@ -1,6 +1,0 @@
-/home/kub0x/MonoProject/HashBully/HashBully/obj/x86/Debug/.NETFramework,Version=v4.5.AssemblyAttribute.cs
-/home/kub0x/MonoProject/HashBully/HashBully/bin/Debug/HashBully.exe.mdb
-/home/kub0x/MonoProject/HashBully/HashBully/bin/Debug/HashBully.exe
-/home/kub0x/MonoProject/HashBully/HashBully/obj/x86/Debug/HashBully.exe
-/home/kub0x/MonoProject/HashBully/HashBully/obj/x86/Debug/HashBully.exe.mdb
-/home/kub0x/MonoProject/HashBully/HashBully/bin/Debug/Mono.Nat.dll
