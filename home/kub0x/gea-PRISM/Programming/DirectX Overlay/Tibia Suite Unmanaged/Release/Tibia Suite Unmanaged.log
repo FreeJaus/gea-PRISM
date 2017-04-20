@@ -1,0 +1,24 @@
+﻿Build started 17/01/2015 23:44:46.
+     1>Project "C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Tibia Suite Unmanaged\Tibia Suite Unmanaged.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D TIBIASUITEUNMANAGED_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Release\Tibia Suite Unmanaged.pch" /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt GUIManager.cpp
+         GUIManager.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Release\Tibia Suite Unmanaged.dll" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Release\Tibia Suite Unmanaged.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Release\Tibia Suite Unmanaged.lib" /MACHINE:X86 /SAFESEH /DLL Release\CharacterList.obj
+         Release\d3dHook.obj
+         Release\dllmain.obj
+         Release\Engine.obj
+         Release\GUIManager.obj
+         Release\HttpManager.obj
+         Release\RegEx.obj
+         Release\stdafx.obj
+         "Release\Tibia Suite Unmanaged.obj"
+            Creating library C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Release\Tibia Suite Unmanaged.lib and object C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Release\Tibia Suite Unmanaged.exp
+         Generating code
+         Finished generating code
+         Tibia Suite Unmanaged.vcxproj -> C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Release\Tibia Suite Unmanaged.dll
+     1>Done Building Project "C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Tibia Suite Unmanaged\Tibia Suite Unmanaged.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.90
