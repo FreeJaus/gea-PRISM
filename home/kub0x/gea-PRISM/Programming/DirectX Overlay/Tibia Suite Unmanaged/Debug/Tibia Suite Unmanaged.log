@@ -1,0 +1,27 @@
+﻿Build started 12/01/2015 20:56:50.
+     1>Project "C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Tibia Suite Unmanaged\Tibia Suite Unmanaged.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D TIBIASUITEUNMANAGED_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\Tibia Suite Unmanaged.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt CharacterList.cpp HttpManager.cpp RegEx.cpp
+         CharacterList.cpp
+         Generating Code...
+         Compiling...
+         HttpManager.cpp
+         Generating Code...
+         Skipping... (no relevant changes detected)
+         RegEx.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D TIBIASUITEUNMANAGED_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt dllmain.cpp
+         Skipping... (no relevant changes detected)
+         dllmain.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Debug\Tibia Suite Unmanaged.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Debug\Tibia Suite Unmanaged.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Debug\Tibia Suite Unmanaged.lib" /MACHINE:X86 /DLL Debug\CharacterList.obj
+         Debug\dllmain.obj
+         Debug\HttpManager.obj
+         Debug\RegEx.obj
+         Debug\stdafx.obj
+         "Debug\Tibia Suite Unmanaged.obj"
+         Tibia Suite Unmanaged.vcxproj -> C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Debug\Tibia Suite Unmanaged.dll
+     1>Done Building Project "C:\Users\kub0x\Documents\Visual Studio 2013\Projects\Tibia Suite Managed\Tibia Suite Unmanaged\Tibia Suite Unmanaged.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:02.20
