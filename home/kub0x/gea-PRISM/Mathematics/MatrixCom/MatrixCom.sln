@@ -1,0 +1,17 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{2857B73E-F847-4B02-9238-064979017E93}") = "MatrixCom", "MatrixCom\MatrixCom.cproj", "{DEBBFA34-8983-4AD1-AA6C-73DA10D6AEA7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DEBBFA34-8983-4AD1-AA6C-73DA10D6AEA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEBBFA34-8983-4AD1-AA6C-73DA10D6AEA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEBBFA34-8983-4AD1-AA6C-73DA10D6AEA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEBBFA34-8983-4AD1-AA6C-73DA10D6AEA7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
