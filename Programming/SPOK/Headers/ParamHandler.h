@@ -1,7 +1,9 @@
 ﻿#pragma once
 
 #include "Singleton.h"
+#include "Param.h"
 #include <string>
+#include <vector>
 
 class ParamHandler final : public Singleton<ParamHandler> {
 
@@ -11,11 +13,11 @@ private:
 	
 	ParamHandler() : Singleton<ParamHandler>() {}
 
-	char* ParseArgs(char **begin, char **end, const std::string& option);
-	bool ExistOption(char **begin, char **end, const std::string& option);
+	Param* IsInList(const std::vector<Param*>& commands, const std::string& arg);
 
 public:
 
-	bool ParseCondition(bool parsevalue, int argc, char** argv, const std::string& option, const std::string& option1, std::string& value, bool *repeat, bool *nofile);
+	bool ParseArguments(const std::vector<std::string>& args, int* paramcount, bool *verbose, bool *version, std::string& dumpfile, 
+	std::string& loadfile, std::string& savefile, std::string& charset, std::string& interval, std::string& hash);
 
 };

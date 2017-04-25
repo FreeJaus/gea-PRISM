@@ -1,51 +1,68 @@
 ﻿#include "../Headers/ParamHandler.h"
-#include <iostream>
 #include <algorithm>
 
-char* ParamHandler::ParseArgs(char **begin, char **end, const std::string& option){
-	char ** itr = std::find(begin, end, option);
-    if (itr != end && ++itr != end)
-    {
-        return *itr;
-    }
-    return 0;
-}
-
-bool ParamHandler::ExistOption(char **begin, char **end, const std::string& option){
-    return std::find(begin, end, option) != end;
-}
-
-bool ParamHandler::ParseCondition(bool parsevalue, int argc, char** argv, const std::string& option, const std::string& option1, std::string& value, bool *repeat, bool *nofile){
-	bool present = false;
-	char *retptr = nullptr;
-	*repeat = false;
-	*nofile = true;
-
-	if (ExistOption(argv, argv+argc, option)){
-		present = true;
-		retptr = ParseArgs(argv, argv+argc, option);
+Param* ParamHandler::IsInList(const std::vector<Param*>& commands, const std::string& arg){
+	Param *p = nullptr;
+	auto it = commands.begin();
+	while (it != commands.end() && p == nullptr){
+		if ((*it)->GetCommand() == arg || (*it)->GetAlias() == arg)
+			p = *it;
+		it++;
 	}
-	if (ExistOption(argv, argv+argc, option1))
-		if (!present){
-			present = true;
-			retptr = ParseArgs(argv, argv+argc, option1);
+	return p;
+}
+
+bool ParamHandler::ParseArguments(const std::vector<std::string>& args, int* paramcount, bool *verbose, bool *version, std::string& dumpfile, 
+	std::string& loadfile, std::string& savefile, std::string& charset, std::string& interval, std::string& hash){
+
+	bool ret = true;
+	std::vector<Param*> commands;
+
+	Param *vParam = new Param("-v", "--verbose", false); commands.push_back(vParam);
+	Param *verParam = new Param("-ver","--version", false); commands.push_back(verParam);
+	Param *gParam = new Param("-g", "--generate", true); commands.push_back(gParam);
+	Param *lParam = new Param("-l", "--load", true); commands.push_back(lParam);
+	Param *iParam = new Param("-i", "--interval", true); commands.push_back(iParam);
+	Param *cParam = new Param("-c", "--charset", true); commands.push_back(cParam);
+	Param *sParam = new Param("-s", "--save", true); commands.push_back(sParam);
+	Param *hParam = new Param("-h", "--hash", true); commands.push_back(hParam);
+
+	Param *curParam = nullptr, *c = nullptr;
+	auto it = args.begin();
+
+	while (it != args.end() && ret){
+		c = IsInList(commands, *(it));
+		if (c!= nullptr){
+			if (curParam == nullptr){
+				if (c->HasArg())
+					curParam = c; //Expect command argument in next iteration
+				if (!c->IsMarked()){
+					c->SetMarked();
+					(*paramcount)++;
+				}else{
+					ret = false; //Command repetition
+				}
+			}else{
+				ret = false; //Expected command argument
+			}
 		}else{
-			std::cout << "Parameter repetition detected for " <<  option1 << std::endl;
-			*repeat = true;
-			return true;
+			if (curParam != nullptr){
+				curParam->SetArgument(*it);
+				curParam = nullptr;
+			}else{
+				ret = false; //Command not in list
+			}
 		}
 
-	if (parsevalue)
-		if (present)
-			if (retptr){
-				value = std::string(retptr);
-				*nofile = false;
-			}else{
-				std::cout << "No value found for " << option1 << std::endl;
-			}
-		else
-			*nofile = false;
-	
-	return present;
+		it++;
+	}
 
+	*verbose = vParam->IsMarked(), *version = verParam->IsMarked();
+	dumpfile = gParam->GetArgument(), loadfile = lParam->GetArgument(), savefile = lParam->GetArgument();
+	charset = cParam->GetArgument(), interval = iParam->GetArgument(), hash = hParam->GetArgument();
+
+	for (auto it = commands.begin(); it != commands.end(); it++)
+		delete *it;
+
+	return ret;
 }

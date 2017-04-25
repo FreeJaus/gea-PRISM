@@ -7,91 +7,106 @@
 #include <cmath>
 #include <ratio>
 #include <thread>
+#include <sstream>
 
 void Engine::ExecuteArgs(int argc, char **argv){
-	std::string dummy, strinterval, strhash;
-	bool repeat=false, nofile=true;
+	int paramcount = 0;
+	bool version = false;
 
-	if (ParamHandler::GetInstance()->ParseCondition(false, argc, argv, "-v", "--verbose", dummy, &repeat, &nofile))
-		verbose=true;
+	std::vector<std::string> args(argv, argv+argc); //split argv
 
-	if (ParamHandler::GetInstance()->ParseCondition(false, argc, argv, "-ver", "--version", dummy, &repeat, &nofile))
-		if (argc == 2){
-			std::cout << VERSION << std::endl; 
-			return;
-		}else{
-			std::cout << "Invalid list of parameters for -ver,--version." << std::endl;
+	if (args.at(0) == "./spok") args.erase(args.begin());
+
+	std::string _charset;
+
+	 //Check if no repetition, no ilegal commands and exist commands with arguments
+	if (ParamHandler::GetInstance()->ParseArguments(args, &paramcount, &verbose, &version, 
+		dumpfile, loadfile, savefile, _charset, interval, hash)){
+
+		if (version)
+			if (paramcount == 1){
+				std::cout << VERSION << std::endl;
+				return;
+			}else{
+				PrintMenu();
+				return; //version with more than 1 command considered ilegal
+			}
+		
+		if (!loadfile.empty()){
+			if (paramcount == 1){
+				std::string params  = FileHandler::GetInstance()->ReadStateFile(loadfile);
+				if (params.empty()) return;
+				//split params by whitespace
+				args = Split(params);
+				//Check if load file params are correct
+				if (!ParamHandler::GetInstance()->ParseArguments(args, &paramcount, &verbose, &version, 
+					dumpfile, loadfile, savefile, _charset, interval, hash)){
+					std::cout << "Failed to load state file!" << std::endl;
+					return;
+				}
+			}else{
+				PrintMenu(); //Load present but more than 1 command
+				return;
+			}
+		}
+		FillParams(_charset);
+		BeginExecution();
+	}else{
+		PrintMenu(); //ilegal cmds, repetition or no args for cmds
+	}
+
+}
+
+std::vector<std::string> Engine::Split(const std::string& str){
+	std::vector<std::string> v;
+	std::stringstream strstream(str);
+	std::string buff;
+	while (strstream >> buff)
+		v.push_back(buff);
+	return v;
+}
+
+void Engine::FillParams(const std::string& _charset){
+
+	if (dumpfile.empty()){
+			PrintMenu();
 			return;
 		}
 
-	if (ParamHandler::GetInstance()->ParseCondition(true, argc, argv, "-l", "--load", loadfile, &repeat, &nofile)){
-		if (repeat || nofile) return;
-		if (argc==3){
-			std::cout << "Loading previous session state" << std::endl;
-			std::string _charset;
-			savefile = loadfile; //ENABLE SAVING
-			FileHandler::GetInstance()->ParseStateFile(loadfile, &verbose, dumpfile, strinterval, strhash, _charset, lastword);
-			if (verbose)
-				saveparams = "-v";
-			if (_charset.size())
-				CHARSET = _charset; //OVERRIDE DEFAULT CHARSET
-
-			if (!strinterval.empty())
-				i = strinterval.at(0) - '0', j = strinterval.at(2) - '0';
-			else
-				strinterval = "1,5";
-			
-			if (!strhash.empty())
-				nhash = strhash.at(0) - '0';
-			else
-				strhash = "0";
-
-			saveparams += "-g" + dumpfile + "-c" + CHARSET + "-i" + strinterval + "-h" + strhash + "-w";
-
-			std::cout << i << "," << j << "," << nhash << "," << dumpfile << "," << CHARSET << "," << lastword << std::endl;;
-			BeginExecution();
-			return; //DO NOT EVALUATE REST OF ARGS
-		}else{
-			std::cout << "Invalid list of parameters for -l,--load." << std::endl;
-			return;
-		}
-	}
-
-	if (!ParamHandler::GetInstance()->ParseCondition(true, argc, argv, "-g","--generate", dumpfile, &repeat, &nofile)){
-		std::cout << "No valid Input!" << std::endl; //NO LOAD NO GEN -> EXIT
-		return;
-	}
-
-	if (repeat || nofile) return;
-
-	if (!ParamHandler::GetInstance()->ParseCondition(true, argc, argv, "-c","--charset", CHARSET, &repeat, &nofile))
+	if (!_charset.empty())
+		CHARSET = _charset;
+	else
 		std::cout << "Using default charset." << std::endl;
 
-	if (repeat || nofile) return;
-
-	if (ParamHandler::GetInstance()->ParseCondition(true, argc, argv, "-i","--interval", strinterval, &repeat, &nofile)){
-		if (repeat || nofile) return;
-		i = strinterval.at(0) - '0', j = strinterval.at(2) - '0';
+	if (!interval.empty()){
+		std::string concat;
+		for (auto it=interval.begin(); it != interval.end(); it++){
+			if (*it == ','){
+				i = std::stoi(concat);
+				concat.clear();
+			}else{
+				concat += *it;
+			}
+		}
+		j = std::stoi(concat);
+		if (i > j || j <= 0 || i <= 0){
+			PrintMenu();
+			return;
+		}
 	}else{
-		strinterval = "1,5";
-		std::cout << "Using default interval <1,5>" << std::endl;
+		i = 1, j = 5;
 	}
 
-	if (ParamHandler::GetInstance()->ParseCondition(true, argc, argv, "-h","--hash", strhash, &repeat, &nofile)){
-		if (repeat || nofile) return;
-		nhash = strhash.at(0) - '0';
-	}else{
-		strhash = "0";
-	}
+	if (!hash.empty())
+			nhash = hash.at(0) - '0';
+	else
+		nhash = 0;
 
-	if (ParamHandler::GetInstance()->ParseCondition(true, argc, argv, "-s","--save", savefile, &repeat, &nofile)){
-		if (repeat || nofile) return;
+	if (!savefile.empty()){
 		if (verbose)
 			saveparams = "-v";
-		saveparams += "-g" + dumpfile + "-c" + CHARSET + "-i" + strinterval + "-h" + strhash + "-w";
+		saveparams += "-g" + dumpfile + "-c" + CHARSET + "-i" + interval + "-h" + hash + "-w";
 	}
-
-	BeginExecution();
 
 }
 
@@ -197,17 +212,20 @@ void Engine::ShowVerbose(std::chrono::high_resolution_clock::time_point& t1, lon
 
 void Engine::GenerateWords(){
 		std::string str, substr;
-		for (auto it = nodes.begin(); it != nodes.end(); it++)
+		for (auto it = nodes.begin(); it != nodes.end(); ++it)
 			str += (*it)->getValue();
-		
-		int ctr = 0;
-		for (int k = i; k <= j; k++){
+		buffer.append(str);
+		buffer += "\n"; //SAVE 1 ITERATION
+		int ctr = 1;
+		for (int k = i; k <= j-1; k++){
 			if (!nodes.at(ctr)->IsSignaled()){
 				substr = str.substr(ctr++,str.size());
-				if (nhash)
+				if (nhash){
 					Crypto::GetInstance()->HashWord(buffer, substr, nhash);
-				else
-					buffer += substr + "\n";
+				}else{
+					buffer.append(substr);
+					buffer += "\n";
+				}
 			}
 		}
 		if (buffer.size() > BUFFSIZE-50){ //BUFF > 400 MB
