@@ -28,8 +28,7 @@ private:
 
 public:
 
-	Node(char _value, Node* _prev);
-	Node(char _value, int _valuepos, bool _signaled, Node* _prev);
+	Node(char _value, char _inival, int _valuepos, bool _signaled, Node* _prev);
 
 	void Permute(char _value);
 	void Reset();

@@ -27,6 +27,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <thread>
 #include <sstream>
 
+Engine::Engine() : Singleton<Engine>(){
+	i=1, j=5, nhash = 0;
+	totalstorage = 0;
+	verbose = false;
+	CHARSET = "abcdefghijklmnopqrstuvwxyz";
+}
+
 void Engine::ExecuteArgs(int argc, char **argv){
 	int paramcount = 0;
 	bool version = false;
@@ -39,7 +46,7 @@ void Engine::ExecuteArgs(int argc, char **argv){
 
 	 //Check if no repetition, no ilegal commands and exist commands with arguments
 	if (ParamHandler::GetInstance()->ParseArguments(args, &paramcount, &verbose, &version, 
-		dumpfile, loadfile, savefile, _charset, interval, hash)){
+		dumpfile, loadfile, savefile, _charset, interval, hash, lastword)){
 
 		if (version)
 			if (paramcount == 1){
@@ -58,7 +65,7 @@ void Engine::ExecuteArgs(int argc, char **argv){
 				args = Split(params);
 				//Check if load file params are correct
 				if (!ParamHandler::GetInstance()->ParseArguments(args, &paramcount, &verbose, &version, 
-					dumpfile, loadfile, savefile, _charset, interval, hash)){
+					dumpfile, loadfile, savefile, _charset, interval, hash, lastword)){
 					std::cout << "Failed to load state file!" << std::endl;
 					return;
 				}
@@ -173,7 +180,7 @@ void Engine::FillNodeList(){
 			value = lastword[k];
 			valuepos = GetLetterPos(value);
 		}
-		node = new Node(value, valuepos, signaled, prev);
+		node = new Node(value, CHARSET[0], valuepos, signaled, prev);
 		nodes.push_back(node);
 		prev = node;
 		if (value != CHARSET[0])

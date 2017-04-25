@@ -35,6 +35,6 @@ private:
 public:
 
 	bool ParseArguments(const std::vector<std::string>& args, int* paramcount, bool *verbose, bool *version, std::string& dumpfile, 
-	std::string& loadfile, std::string& savefile, std::string& charset, std::string& interval, std::string& hash);
+	std::string& loadfile, std::string& savefile, std::string& charset, std::string& interval, std::string& hash, std::string& lastword);
 
 };

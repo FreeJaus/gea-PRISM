@@ -17,9 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../Headers/Node.h"
 
-Node::Node(char _value, int _valuepos, bool _signaled, Node *_prev){
+//Inival allows to reset to first letter of charset
+Node::Node(char _value, char _inival, int _valuepos, bool _signaled, Node *_prev){
 	this->value = _value;
-	this->inival = _value;
+	this->inival = _inival;
 	this->valuepos = _valuepos;
 	this->signaled = _signaled;
 	this->prev = _prev;
