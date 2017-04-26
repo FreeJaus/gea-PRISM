@@ -15,7 +15,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "../Headers/Engine.h"
 #include "../Headers/FileHandler.h"
 #include "../Headers/ParamHandler.h"
@@ -26,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <ratio>
 #include <thread>
 #include <sstream>
+#include <string.h>
 
 Engine::Engine() : Singleton<Engine>(){
 	i=1, j=5, nhash = 0;
@@ -40,14 +40,13 @@ void Engine::ExecuteArgs(int argc, char **argv){
 
 	std::vector<std::string> args(argv, argv+argc); //split argv
 
-	if (args.at(0) == "./spok") args.erase(args.begin());
+	args.erase(args.begin()); //delete input filename
 
 	std::string _charset;
 
 	 //Check if no repetition, no ilegal commands and exist commands with arguments
 	if (ParamHandler::GetInstance()->ParseArguments(args, &paramcount, &verbose, &version, 
 		dumpfile, loadfile, savefile, _charset, interval, hash, lastword)){
-
 		if (version)
 			if (paramcount == 1){
 				std::cout << VERSION << std::endl;
@@ -129,8 +128,8 @@ void Engine::FillParams(const std::string& _charset){
 
 	if (!savefile.empty()){
 		if (verbose)
-			saveparams = "-v";
-		saveparams += "-g" + dumpfile + "-c" + CHARSET + "-i" + interval + "-h" + hash + "-w";
+			saveparams = "-v ";
+		saveparams += "-g " + dumpfile + " -c " + CHARSET + " -i " + interval + " -h " + std::to_string(nhash) + " -w ";
 	}
 
 }
@@ -155,18 +154,20 @@ void Engine::BeginExecution(){
 	totalstorage /= (1024*1024);
 
 	std::cout << "Total storage needed: " << totalstorage << " MB" << std::endl;
-
 	FileHandler::GetInstance()->OpenDumpFile(dumpfile);
 
-	buffer.reserve(BUFFSIZE);
+	int start = i;
 
 	FillNodeList();
 
 	Permute();
 
-	FileHandler::GetInstance()->LogFile(buffer, std::string(), std::string()); //WRITE REMAINING WORDS OF BUFFER
+	//TODO ONLY ONE MEMSET NEEDED¿?
+	while (buff.size()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	buff = buffer;
+	FileHandler::GetInstance()->LogFile(buff, savefile, saveparams, j); //WRITE REMAINING WORDS TO FILE
 
-	std::cout << "All words of length " << i << "," << j << " have been generated." << std::endl;
+	std::cout << "All words of length " << start << "," << j << " have been generated." << std::endl;
 }
 
 void Engine::FillNodeList(){
@@ -203,6 +204,7 @@ int Engine::GetLetterPos(char c){
 }
 
 void Engine::Permute(){
+	int seqcount = 0;
 	Node *node = nodes.back();
 	long words = 0;
 	auto t1 = std::chrono::high_resolution_clock::now();
@@ -214,9 +216,11 @@ void Engine::Permute(){
 				words++;
 				ShowVerbose(t1, &words);
 			}
-
 			GenerateWords();
 		}else{
+			if (!node->IsSignaled())
+				if (++seqcount == i) //SAVE FUTURE ITERATIONS ON SUBSTR
+					i++;
 			node->Reset();
 			node = node->Prev();
 		}
@@ -235,30 +239,73 @@ void Engine::ShowVerbose(std::chrono::high_resolution_clock::time_point& t1, lon
 	}
 }
 
+void Engine::CopyWordCrypto(){
+	char word[j];
+	for (int k=0; k < nodes.size(); k++)
+		word[k]=nodes.at(k)->getValue();
+	Crypto::GetInstance()->HashWord(buffer, word, nhash, &bfpos);
+}
+
+void Engine::CopyWord(){
+	int p = 0;
+	for (int k = bfpos; k < bfpos + j; k++){
+		buffer[k] = nodes.at(p)->getValue();
+		p++;
+	}
+	bfpos += j;
+	buffer[bfpos++] = '\n';
+}
+
+void Engine::SubStrCrypto(int start, char *_str){
+	int p = 0;
+	char word[j-start];
+	for (int k = start; k < j; k++){
+		word[p] = _str[k];
+		p++;
+	}
+	Crypto::GetInstance()->HashWord(buffer, word, nhash, &bfpos);
+}
+
+void Engine::SubStrWord(int start, char *_str){
+	int p = start;
+	int offset = j - start;
+	for (int k = bfpos; k < bfpos + offset; k++){
+		buffer[k] = _str[p];
+		p++;
+	}
+	bfpos += offset;
+	buffer[bfpos++] = '\n';
+}
+
 void Engine::GenerateWords(){
-		std::string str, substr;
-		for (auto it = nodes.begin(); it != nodes.end(); ++it)
-			str += (*it)->getValue();
-		buffer.append(str);
-		buffer += "\n"; //SAVE 1 ITERATION
-		int ctr = 1;
-		for (int k = i; k <= j-1; k++){
-			if (!nodes.at(ctr)->IsSignaled()){
-				substr = str.substr(ctr++,str.size());
-				if (nhash){
-					Crypto::GetInstance()->HashWord(buffer, substr, nhash);
-				}else{
-					buffer.append(substr);
-					buffer += "\n";
-				}
-			}
+	if (i<j){
+		char _str[j];
+		for (int k=0; k < nodes.size(); k++)
+			_str[k]=nodes.at(k)->getValue();
+		int ctr = 0;
+		for (int k = i; k <= j; k++){
+			if (!nhash)
+				SubStrWord(ctr++,_str);
+			else
+				SubStrCrypto(ctr++,_str);
 		}
-		if (buffer.size() > BUFFSIZE-50){ //BUFF > 400 MB
-			std::string _buffer(buffer);
-			buffer = "";
-			std::thread t(&FileHandler::LogFile, FileHandler::GetInstance(), _buffer, savefile, saveparams + str);
-			t.detach();
-		}
+	}else{ //OPTIMIZE CASE i=j SAVING j iterations per call
+		if (!nhash)
+			CopyWord();
+		else
+			CopyWordCrypto();
+		
+	}
+
+	if (bfpos > BUFFSIZE-50){ //BUFF > 400 MB
+		//WAIT UNTIL BUFFER IS FREED IN THREAD. AVOID DATA CORRUPTION
+		while (buff.size()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		buff = buffer;
+		std::thread t(&FileHandler::LogFile, FileHandler::GetInstance(), std::ref(buff), savefile, saveparams, j); //TODO LASTWORD!
+		memset(buffer,0,BUFFSIZE);
+		t.detach();
+		bfpos = 0;
+	}
 }
 
 void Engine::PrintMenu(){

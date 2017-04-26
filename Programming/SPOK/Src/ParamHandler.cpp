@@ -76,7 +76,7 @@ bool ParamHandler::ParseArguments(const std::vector<std::string>& args, int* par
 	}
 
 	*verbose = vParam->IsMarked(), *version = verParam->IsMarked();
-	dumpfile = gParam->GetArgument(), loadfile = lParam->GetArgument(), savefile = lParam->GetArgument();
+	dumpfile = gParam->GetArgument(), loadfile = lParam->GetArgument(), savefile = sParam->GetArgument();
 	charset = cParam->GetArgument(), interval = iParam->GetArgument(), hash = hParam->GetArgument(), lastword = lwParam->GetArgument();
 
 	for (auto it = commands.begin(); it != commands.end(); it++)

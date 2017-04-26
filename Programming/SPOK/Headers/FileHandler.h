@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <mutex>
 
-
 class FileHandler final : public Singleton<FileHandler> {
 
 private:
@@ -42,6 +41,6 @@ public:
 	long double GetFileSize(const std::string& filename);
 	void OpenDumpFile(const std::string &filename);
 	std::string ReadStateFile(const std::string& filename);
-	void LogFile(const std::string& buffer, const std::string& filename, const std::string& params);
+	void LogFile(std::string& buffer, const std::string& filename, const std::string& params, int j);
 
 };

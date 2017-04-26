@@ -25,17 +25,19 @@ class Crypto final : public Singleton<Crypto> {
 private:
 
 	friend class Singleton<Crypto>;
-	
+
+	int *bfpos;
+
 	Crypto() : Singleton<Crypto>() {}
 
 	std::string ToHex(unsigned const char *str, int size);
 
-	void ComputeMD5(std::string& buffer, const std::string& word);
-	void ComputeSHA1(std::string& buffer, const std::string& word);
-	void ComputeSHA256(std::string& buffer, const std::string& word);
+	void ComputeMD5(char *buffer, const char *word);
+	void ComputeSHA1(char *buffer, const char * word);
+	void ComputeSHA256(char *buffer, const char * word);
 
 public:
 
-	void HashWord(std::string& buffer, const std::string& word, int nhash);
+	void HashWord(char *buffer, const char *word, int nhash, int *_bfpos);
 
 };
