@@ -297,7 +297,7 @@ void Engine::GenerateWords(){
 		
 	}
 
-	if (bfpos > BUFFSIZE-50){ //BUFF > 400 MB
+	if (bfpos > BUFFSIZE-999){ //BUFF > 400 MB
 		//WAIT UNTIL BUFFER IS FREED IN THREAD. AVOID DATA CORRUPTION
 		while (buff.size()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		buff = buffer;

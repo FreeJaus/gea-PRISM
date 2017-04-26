@@ -39,11 +39,11 @@ void Crypto::ComputeMD5(char *buffer, const char *word){
 	std::string s = ToHex((const unsigned char*)omd5, MD5_DIGEST_LENGTH);
 	strcpy(md5hash, s.c_str());
 	int size = 32, p = 0;
-	for (int i = *bfpos; i < *bfpos + size; i++){
+	for (int i = *bfpos; i < (*bfpos) + size; i++){
 		buffer[i] = md5hash[p];
 		p++;
 	} //32 40 64
-	*bfpos +=size;
+	(*bfpos) +=size;
 	buffer[(*bfpos)++]='\n';
 }
 
@@ -55,11 +55,11 @@ void Crypto::ComputeSHA1(char *buffer, const char *word){
 	std::string s = ToHex((const unsigned char*)osha1, SHA_DIGEST_LENGTH);
 	strcpy(sha1hash, s.c_str());
 	int size = 40, p = 0;
-	for (int i = *bfpos; i < *bfpos + size; i++){
+	for (int i = *bfpos; i < (*bfpos) + size; i++){
 		buffer[i] = sha1hash[p];
 		p++;
 	}
-	*bfpos +=size;
+	(*bfpos) +=size;
 	buffer[(*bfpos)++]='\n';
 }
 
@@ -71,11 +71,11 @@ void Crypto::ComputeSHA256(char *buffer, const char *word){
 	std::string s = ToHex((const unsigned char*)osha256, SHA256_DIGEST_LENGTH);
 	strcpy(sha256hash, s.c_str());
 	int size = 64, p = 0;
-	for (int i = *bfpos; i < *bfpos + size; i++){
+	for (int i = *bfpos; i < (*bfpos) + size; i++){
 		buffer[i] = sha256hash[p];
 		p++;
 	}
-	*bfpos +=size;
+	(*bfpos) +=size;
 	buffer[(*bfpos)++]='\n';
 }
 
