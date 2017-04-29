@@ -22,15 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <algorithm>
 #include <cmath>
-#include <ratio>
 #include <thread>
 #include <sstream>
 #include <string.h>
 
 Engine::Engine() : Singleton<Engine>(){
-	i=1, j=5, nhash = 0;
+	i= 1, j= 5, nhash = 0, bfpos = 0;
 	totalstorage = 0;
-	verbose = false;
+	verbose = false, mbuffer = false;
 	CHARSET = "abcdefghijklmnopqrstuvwxyz";
 }
 
@@ -46,7 +45,7 @@ void Engine::ExecuteArgs(int argc, char **argv){
 
 	 //Check if no repetition, no ilegal commands and exist commands with arguments
 	if (ParamHandler::GetInstance()->ParseArguments(args, &paramcount, &verbose, &version, 
-		dumpfile, loadfile, savefile, _charset, interval, hash, lastword)){
+		&mbuffer, dumpfile, loadfile, savefile, _charset, interval, hash, lastword)){
 		if (version)
 			if (paramcount == 1){
 				std::cout << VERSION << std::endl;
@@ -64,7 +63,7 @@ void Engine::ExecuteArgs(int argc, char **argv){
 				args = Split(params);
 				//Check if load file params are correct
 				if (!ParamHandler::GetInstance()->ParseArguments(args, &paramcount, &verbose, &version, 
-					dumpfile, loadfile, savefile, _charset, interval, hash, lastword)){
+					&mbuffer, dumpfile, loadfile, savefile, _charset, interval, hash, lastword)){
 					std::cout << "Failed to load state file!" << std::endl;
 					return;
 				}
@@ -152,20 +151,18 @@ void Engine::BeginExecution(){
 	}
 
 	totalstorage /= (1024*1024);
-
 	std::cout << "Total storage needed: " << totalstorage << " MB" << std::endl;
 	FileHandler::GetInstance()->OpenDumpFile(dumpfile);
 
 	int start = i;
 
 	FillNodeList();
-
 	Permute();
 
-	//TODO ONLY ONE MEMSET NEEDED¿?
-	while (buff.size()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	if (!mbuffer)
+		while (buff.size()) std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	buff = buffer;
-	FileHandler::GetInstance()->LogFile(buff, savefile, saveparams, j); //WRITE REMAINING WORDS TO FILE
+	//FileHandler::GetInstance()->LogFile(std::ref(buff), std::ref(savefile), std::ref(saveparams), j); //WRITE REMAINING WORDS TO FILE
 
 	std::cout << "All words of length " << start << "," << j << " have been generated." << std::endl;
 }
@@ -206,16 +203,14 @@ int Engine::GetLetterPos(char c){
 void Engine::Permute(){
 	int seqcount = 0;
 	Node *node = nodes.back();
-	long words = 0;
-	auto t1 = std::chrono::high_resolution_clock::now();
+	start = std::chrono::steady_clock::now();
 	while(node != nullptr){
 		if (node->getValuePos() < CHARSET.size()-1){
 			node->Permute(CHARSET.at(node->getValuePos() + 1));
 			node = nodes.back();
-			if (verbose){
+			if (verbose)
 				words++;
-				ShowVerbose(t1, &words);
-			}
+			
 			GenerateWords();
 		}else{
 			if (!node->IsSignaled())
@@ -227,82 +222,73 @@ void Engine::Permute(){
 	}
 }
 
-void Engine::ShowVerbose(std::chrono::high_resolution_clock::time_point& t1, long *words){
-	auto t2 = std::chrono::high_resolution_clock::now();
-	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
-	if (ms.count() > 60*1000){
+void Engine::ShowVerbose(){
+	auto end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> ms = end - start;
+	if (ms.count() > 60){
 		long double curstorage = FileHandler::GetInstance()->GetFileSize(dumpfile);
-		std::cout << "Words per minute: " << *words << "\nWords per second: " << *words/60 << std::endl;
+		std::cout << "Words per minute: " << words << "\nWords per second: " << words/60 << std::endl;
 		std::cout << "Current storage: " << curstorage/(1024*1024) << "/" << totalstorage << " MB" << std::endl;
-		t1 = std::chrono::high_resolution_clock::now();
-		*words = 0;
+		start = std::chrono::steady_clock::now();
+		words = 0;
 	}
 }
 
-void Engine::CopyWordCrypto(){
-	char word[j];
-	for (int k=0; k < nodes.size(); k++)
-		word[k]=nodes.at(k)->getValue();
-	Crypto::GetInstance()->HashWord(buffer, word, nhash, &bfpos);
+void Engine::SubStrCrypto(){
+	int start = 0;
+	for (int k = i; k <= j; k++){
+		int p = 0;
+		char word[j-start];
+		for (int k = start; k < j; k++){
+			word[p] = nodes.at(k)->getValue();//_str[k];
+			p++;
+		}
+		Crypto::GetInstance()->HashWord(buffer, word, nhash, &bfpos);
+		start++;
+		}
 }
 
-void Engine::CopyWord(){
-	int p = 0;
-	for (int k = bfpos; k < bfpos + j; k++){
-		buffer[k] = nodes.at(p)->getValue();
-		p++;
-	}
-	bfpos += j;
-	buffer[bfpos++] = '\n';
-}
 
-void Engine::SubStrCrypto(int start, char *_str){
-	int p = 0;
-	char word[j-start];
-	for (int k = start; k < j; k++){
-		word[p] = _str[k];
-		p++;
-	}
-	Crypto::GetInstance()->HashWord(buffer, word, nhash, &bfpos);
-}
-
-void Engine::SubStrWord(int start, char *_str){
+void Engine::SubStrWord(){
+	int start =0;
 	int p = start;
 	int offset = j - start;
-	for (int k = bfpos; k < bfpos + offset; k++){
-		buffer[k] = _str[p];
-		p++;
+	for (int h = i; h <= j; h++){
+		for (int k = bfpos; k < bfpos + offset; k++){
+			buffer[k] = nodes.at(p)->getValue();
+			p++;
+		}
+		bfpos += offset;
+		buffer[bfpos++] = '\n';
+		start++;
+		p=start;
+		offset--;
 	}
-	bfpos += offset;
-	buffer[bfpos++] = '\n';
 }
 
 void Engine::GenerateWords(){
-	if (i<j){
-		char _str[j];
-		for (int k=0; k < nodes.size(); k++)
-			_str[k]=nodes.at(k)->getValue();
-		int ctr = 0;
-		for (int k = i; k <= j; k++){
-			if (!nhash)
-				SubStrWord(ctr++,_str);
-			else
-				SubStrCrypto(ctr++,_str);
-		}
-	}else{ //OPTIMIZE CASE i=j SAVING j iterations per call
-		if (!nhash)
-			CopyWord();
-		else
-			CopyWordCrypto();
-		
-	}
+	//AVOID CHECKING HASH FLAG EVERY ITERATION - SPLIT INTO 2 FOR
+	if (!nhash)
+		SubStrWord();
+	else
+		SubStrCrypto();
 
 	if (bfpos > BUFFSIZE-999){ //BUFF > 400 MB
+		if (verbose)
+			ShowVerbose();
 		//WAIT UNTIL BUFFER IS FREED IN THREAD. AVOID DATA CORRUPTION
-		while (buff.size()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		buff = buffer;
-		std::thread t(&FileHandler::LogFile, FileHandler::GetInstance(), std::ref(buff), savefile, saveparams, j); //TODO LASTWORD!
-		memset(buffer,0,BUFFSIZE);
+		std::thread t;
+		if (mbuffer){
+			//WAIT SOME TIME TO NOT OVERLAP BUFFERS
+			std::this_thread::sleep_for(std::chrono::milliseconds(200));
+			t = std::thread(&FileHandler::LogFileMB, FileHandler::GetInstance(), std::string(buffer), std::ref(savefile), std::ref(saveparams), j); //TODO LASTWORD!
+		}else{
+			//SINGLE BUFFER MODE. WAIT UNTIL REF BUFFER IS FREED
+			while (buff.size()) std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			buff = buffer;
+			t = std::thread(&FileHandler::LogFile, FileHandler::GetInstance(), std::ref(buff), std::ref(savefile), std::ref(saveparams), j); //TODO LASTWORD!
+		}
+		memset(buffer,0,bfpos);
 		t.detach();
 		bfpos = 0;
 	}

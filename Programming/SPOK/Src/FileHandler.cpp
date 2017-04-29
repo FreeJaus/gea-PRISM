@@ -45,17 +45,28 @@ long double FileHandler::GetFileSize(const std::string& filename){
 	return file.tellg();
 }
 
-void FileHandler::LogFile(std::string& buffer, const std::string& filename, const std::string& params, int j){
-	mwrite.lock();
-	auto it = buffer.end();
+//Multi Buffer approach
+void FileHandler::LogFileMB(const std::string buffer, const std::string& filename, const std::string& params, int j){
+	mwrite.lock(); 
 	dumpfile << buffer;
+	//WHEN BUFFER IS COPIED TO FILE, SAVE PARAMS
 	if (!filename.empty()){
+		auto it = buffer.end();
 		std::string lastword(it -j - 1, it);
 		WriteStateFile(filename, params + lastword);
 	}
-	std::cout << "[+] Words saved to file." << std::endl;
-	buffer = "";//PTR AS REF. -> FREE HERE
-	//WHEN BUFFER IS COPIED TO FILE SAVE PARAMS
-
+	//std::cout << "[+] Words saved to file." << std::endl;
 	mwrite.unlock();
+}
+
+void FileHandler::LogFile(std::string& buffer, const std::string& filename, const std::string& params, int j){
+	dumpfile << buffer;
+	//WHEN BUFFER IS COPIED TO FILE, SAVE PARAMS
+	if (!filename.empty()){
+		auto it = buffer.end();
+		std::string lastword(it -j - 1, it);
+		WriteStateFile(filename, params + lastword);
+	}
+	//std::cout << "[+] Words saved to file." << std::endl;
+	buffer = "";//PTR AS REF. -> FREE HERE
 }

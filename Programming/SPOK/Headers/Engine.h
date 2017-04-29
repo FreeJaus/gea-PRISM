@@ -29,34 +29,37 @@ private:
 
 	friend class Singleton<Engine>;
 
-	Engine();
-
 	static const unsigned int BUFFSIZE = 400*1024*1024;
-	const std::string VERSION = "S.P.O.K v1.0.2 April 2017";
+	const std::string VERSION = "S.P.O.K v1.0.3 April 2017";
 	std::string buff;
 	char buffer[BUFFSIZE];
 
-	int i, j, nhash, bfpos = 0;
+	std::chrono::time_point<std::chrono::steady_clock> start;
+	long words;
+
+	int i, j, nhash, bfpos;
 	long double totalstorage;
-	bool verbose;
+	bool verbose, mbuffer;
 
 	std::vector<Node*> nodes;
 
-	std::string CHARSET, dumpfile, savefile, loadfile, /*buffer,*/ saveparams, lastword, interval, hash;
+	std::string CHARSET, dumpfile, savefile, loadfile, saveparams, lastword, interval, hash;
 
-	void ShowVerbose(std::chrono::high_resolution_clock::time_point& t1, long *words);
+	Engine();
+
+	void ShowVerbose();
 	void BeginExecution();
 	void GenerateWords();
 	void Permute();
+
 	void FillNodeList();
-	void FillParams(const std::string& _charset);
 	int GetLetterPos(char c);
+
+	void FillParams(const std::string& _charset);
 	std::vector<std::string> Split(const std::string& str);
 
-	void CopyWord();
-	void CopyWordCrypto();
-	void SubStrWord(int start, char *_str);
-	void SubStrCrypto(int start, char *_str);
+	void SubStrWord();
+	void SubStrCrypto();
 
 public:
 
