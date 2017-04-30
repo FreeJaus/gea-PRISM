@@ -37,9 +37,9 @@ private:
 	std::chrono::time_point<std::chrono::steady_clock> start;
 	long words;
 
-	int i, j, nhash, bfpos;
+	int i, j, nhash, bfpos, mbuffer;
 	long double totalstorage;
-	bool verbose, mbuffer;
+	bool verbose;
 
 	std::vector<Node*> nodes;
 
@@ -55,7 +55,7 @@ private:
 	void FillNodeList();
 	int GetLetterPos(char c);
 
-	void FillParams(const std::string& _charset);
+	bool FillParams(const std::string& _charset);
 	std::vector<std::string> Split(const std::string& str);
 
 	void SubStrWord();

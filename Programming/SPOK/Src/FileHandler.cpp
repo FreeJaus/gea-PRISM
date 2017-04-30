@@ -23,6 +23,10 @@ void FileHandler::OpenDumpFile(const std::string& filename){
 	dumpfile.open(filename, std::ofstream::app | std::ofstream::binary);
 }
 
+void FileHandler::CloseDumpFile(){
+	dumpfile.close();
+}
+
 void FileHandler::WriteStateFile(const std::string& filename, const std::string& params){
 	std::ofstream statefile; 
 	statefile.open(filename, std::ofstream::trunc | std::ofstream::binary);
@@ -55,7 +59,7 @@ void FileHandler::LogFileMB(const std::string buffer, const std::string& filenam
 		std::string lastword(it -j - 1, it);
 		WriteStateFile(filename, params + lastword);
 	}
-	//std::cout << "[+] Words saved to file." << std::endl;
+	std::cout << "[+] Words saved to file." << std::endl;
 	mwrite.unlock();
 }
 
@@ -67,6 +71,6 @@ void FileHandler::LogFile(std::string& buffer, const std::string& filename, cons
 		std::string lastword(it -j - 1, it);
 		WriteStateFile(filename, params + lastword);
 	}
-	//std::cout << "[+] Words saved to file." << std::endl;
+	std::cout << "[+] Words saved to file." << std::endl;
 	buffer = "";//PTR AS REF. -> FREE HERE
 }

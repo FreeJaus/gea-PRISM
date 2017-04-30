@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 
 Engine::Engine() : Singleton<Engine>(){
-	i= 1, j= 5, nhash = 0, bfpos = 0;
+	i= 1, j= 5, nhash = 0, bfpos = 0, mbuffer;
 	totalstorage = 0;
 	verbose = false, mbuffer = false;
 	CHARSET = "abcdefghijklmnopqrstuvwxyz";
@@ -52,7 +52,7 @@ void Engine::ExecuteArgs(int argc, char **argv){
 				return;
 			}else{
 				PrintMenu();
-				return; //version with more than 1 command considered ilegal
+				return; //version with more than 1 command considered illegal
 			}
 		
 		if (!loadfile.empty()){
@@ -72,10 +72,12 @@ void Engine::ExecuteArgs(int argc, char **argv){
 				return;
 			}
 		}
-		FillParams(_charset);
-		BeginExecution();
+		if (FillParams(_charset))
+			BeginExecution();
+		else
+			PrintMenu();
 	}else{
-		PrintMenu(); //ilegal cmds, repetition or no args for cmds
+		PrintMenu(); //illegal cmds, repetition or no args for cmds
 	}
 
 }
@@ -89,12 +91,10 @@ std::vector<std::string> Engine::Split(const std::string& str){
 	return v;
 }
 
-void Engine::FillParams(const std::string& _charset){
-
-	if (dumpfile.empty()){
-			PrintMenu();
-			return;
-		}
+bool Engine::FillParams(const std::string& _charset){
+	bool ret = true;
+	if (dumpfile.empty())
+			ret = false;
 
 	if (!_charset.empty())
 		CHARSET = _charset;
@@ -112,16 +112,17 @@ void Engine::FillParams(const std::string& _charset){
 			}
 		}
 		j = std::stoi(concat);
-		if (i > j || j <= 0 || i <= 0){
-			PrintMenu();
-			return;
-		}
+		if (i > j || j <= 0 || i <= 0)
+			ret=false;
+		
 	}else{
 		i = 1, j = 5;
 	}
 
 	if (!hash.empty())
-			nhash = hash.at(0) - '0';
+		nhash = hash.at(0) - '0';
+		if (nhash < 0 || nhash > 3)
+		ret = false;
 	else
 		nhash = 0;
 
@@ -130,6 +131,11 @@ void Engine::FillParams(const std::string& _charset){
 			saveparams = "-v ";
 		saveparams += "-g " + dumpfile + " -c " + CHARSET + " -i " + interval + " -h " + std::to_string(nhash) + " -w ";
 	}
+
+	if (mbuffer < 0) //FORCE N_0 Domain
+		ret = false;
+	
+	return ret;
 
 }
 
@@ -159,11 +165,16 @@ void Engine::BeginExecution(){
 	FillNodeList();
 	Permute();
 
-	if (!mbuffer)
+	//WRITE REMAINING WORDS TO FILE
+	if (!mbuffer){
 		while (buff.size()) std::this_thread::sleep_for(std::chrono::milliseconds(50));
-	buff = buffer;
-	//FileHandler::GetInstance()->LogFile(std::ref(buff), std::ref(savefile), std::ref(saveparams), j); //WRITE REMAINING WORDS TO FILE
-
+		buff = buffer;
+		FileHandler::GetInstance()->LogFile(buff, std::ref(savefile), std::ref(saveparams), j);
+	}else{
+		FileHandler::GetInstance()->LogFileMB(std::string(buffer), std::ref(savefile), std::ref(saveparams), j);
+	}
+	 
+	FileHandler::GetInstance()->CloseDumpFile();
 	std::cout << "All words of length " << start << "," << j << " have been generated." << std::endl;
 }
 
@@ -186,7 +197,7 @@ void Engine::FillNodeList(){
 	}
 
 	if (!lastword.size()) //AVOIDS REPEATING LAST WORD
-		GenerateWords(); //WRITE FIRST WORDS
+		GenerateWords(); //WRITE FIRST WORD(S)
 
 }
 
@@ -240,7 +251,7 @@ void Engine::SubStrCrypto(){
 		int p = 0;
 		char word[j-start];
 		for (int k = start; k < j; k++){
-			word[p] = nodes.at(k)->getValue();//_str[k];
+			word[p] = nodes.at(k)->getValue();
 			p++;
 		}
 		Crypto::GetInstance()->HashWord(buffer, word, nhash, &bfpos);
@@ -280,7 +291,7 @@ void Engine::GenerateWords(){
 		std::thread t;
 		if (mbuffer){
 			//WAIT SOME TIME TO NOT OVERLAP BUFFERS
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
+			std::this_thread::sleep_for(std::chrono::milliseconds(mbuffer));
 			t = std::thread(&FileHandler::LogFileMB, FileHandler::GetInstance(), std::string(buffer), std::ref(savefile), std::ref(saveparams), j); //TODO LASTWORD!
 		}else{
 			//SINGLE BUFFER MODE. WAIT UNTIL REF BUFFER IS FREED
@@ -308,5 +319,6 @@ void Engine::PrintMenu(){
 	std::cout << "	-i <min,max>, --interval <min,max>	(generate all words of length min & max, default is: <0,5>)" <<std::endl;
 	std::cout << "	-h <number>, --hash <number>		(hash output words into FILE, algorithms: MD5, SHA-1, SHA-256)" << std::endl;
 	std::cout << "	-s [SAVEFILE], --save [SAVEFILE]	(save current session state in SAVEFILE)" << std::endl;
+	std::cout << "	-m, --multibuffer <time>			(waits <time> milliseconds before passing a copy of main buffer to thread. Disabled by default" << std::endl;
 	std::cout << "\n Example: spok --generate words.txt --save save.sav --interval 4,8 --charset '01234567890ABCDEF' --hash 3" << std::endl;
 }

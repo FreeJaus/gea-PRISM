@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <openssl/md5.h>
 #include <openssl/sha.h>
-#include <iostream>
 
 std::string Crypto::ToHex(unsigned const char *str, int size){
 	std::ostringstream stream;
