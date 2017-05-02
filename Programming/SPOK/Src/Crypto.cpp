@@ -30,11 +30,11 @@ std::string Crypto::ToHex(unsigned const char *str, int size){
 	return stream.str().c_str();
 }
 
-void Crypto::ComputeMD5(char *buffer, const char *word){
+void Crypto::ComputeMD5(char *buffer, const char *word, int _size){
 	unsigned char omd5[MD5_DIGEST_LENGTH];
-	MD5((unsigned const char*) word, strlen(word), omd5);
+	MD5((unsigned const char*) word, _size, omd5);
 
-	char md5hash[32];
+	char md5hash[33];
 	std::string s = ToHex((const unsigned char*)omd5, MD5_DIGEST_LENGTH);
 	strcpy(md5hash, s.c_str());
 	int size = 32, p = 0;
@@ -46,11 +46,11 @@ void Crypto::ComputeMD5(char *buffer, const char *word){
 	buffer[(*bfpos)++]='\n';
 }
 
-void Crypto::ComputeSHA1(char *buffer, const char *word){
+void Crypto::ComputeSHA1(char *buffer, const char *word, int _size){
 	unsigned char osha1[SHA_DIGEST_LENGTH];
-	SHA1((unsigned const char*) word, strlen(word), osha1);
+	SHA1((unsigned const char*) word, _size, osha1);
 
-	char sha1hash[40];
+	char sha1hash[41];
 	std::string s = ToHex((const unsigned char*)osha1, SHA_DIGEST_LENGTH);
 	strcpy(sha1hash, s.c_str());
 	int size = 40, p = 0;
@@ -62,11 +62,11 @@ void Crypto::ComputeSHA1(char *buffer, const char *word){
 	buffer[(*bfpos)++]='\n';
 }
 
-void Crypto::ComputeSHA256(char *buffer, const char *word){
+void Crypto::ComputeSHA256(char *buffer, const char *word, int _size){
 	unsigned char osha256[SHA256_DIGEST_LENGTH];
-	SHA256((unsigned const char*)word, strlen(word), osha256);
+	SHA256((unsigned const char*)word, _size, osha256);
 
-	char sha256hash[64];
+	char sha256hash[65];
 	std::string s = ToHex((const unsigned char*)osha256, SHA256_DIGEST_LENGTH);
 	strcpy(sha256hash, s.c_str());
 	int size = 64, p = 0;
@@ -78,11 +78,11 @@ void Crypto::ComputeSHA256(char *buffer, const char *word){
 	buffer[(*bfpos)++]='\n';
 }
 
-void Crypto::HashWord(char *buffer, const char *word, int nhash, int *_bfpos){
+void Crypto::HashWord(char *buffer, const char *word, int nhash, int *_bfpos, int size){
 	bfpos = _bfpos;
-	ComputeMD5(buffer, word);
+	ComputeMD5(buffer, word, size);
 	if (nhash > 1)
-		ComputeSHA1(buffer, word);
+		ComputeSHA1(buffer, word, size);
 	if (nhash == 3)
-		ComputeSHA256(buffer, word);
+		ComputeSHA256(buffer, word, size);
 }

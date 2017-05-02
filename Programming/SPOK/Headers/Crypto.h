@@ -32,12 +32,12 @@ private:
 
 	std::string ToHex(unsigned const char *str, int size);
 
-	void ComputeMD5(char *buffer, const char *word);
-	void ComputeSHA1(char *buffer, const char * word);
-	void ComputeSHA256(char *buffer, const char * word);
+	void ComputeMD5(char *buffer, const char *word, int _size);
+	void ComputeSHA1(char *buffer, const char * word, int _size);
+	void ComputeSHA256(char *buffer, const char * word, int _size);
 
 public:
 
-	void HashWord(char *buffer, const char *word, int nhash, int *_bfpos);
+	void HashWord(char *buffer, const char *word, int nhash, int *_bfpos, int size);
 
 };

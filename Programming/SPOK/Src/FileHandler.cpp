@@ -20,11 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 void FileHandler::OpenDumpFile(const std::string& filename){
-	dumpfile.open(filename, std::ofstream::app | std::ofstream::binary);
+	dumpfile = fopen(filename.c_str(), "wb");
+	//Choose ideal size for stream buffer (speedups write chunks)
+	setvbuf(dumpfile, 0, _IOFBF, BUFSIZ);
 }
 
 void FileHandler::CloseDumpFile(){
-	dumpfile.close();
+	fclose(dumpfile);
 }
 
 void FileHandler::WriteStateFile(const std::string& filename, const std::string& params){
@@ -49,28 +51,6 @@ long double FileHandler::GetFileSize(const std::string& filename){
 	return file.tellg();
 }
 
-//Multi Buffer approach
-void FileHandler::LogFileMB(const std::string buffer, const std::string& filename, const std::string& params, int j){
-	mwrite.lock(); 
-	dumpfile << buffer;
-	//WHEN BUFFER IS COPIED TO FILE, SAVE PARAMS
-	if (!filename.empty()){
-		auto it = buffer.end();
-		std::string lastword(it -j - 1, it);
-		WriteStateFile(filename, params + lastword);
-	}
-	std::cout << "[+] Words saved to file." << std::endl;
-	mwrite.unlock();
-}
-
-void FileHandler::LogFile(std::string& buffer, const std::string& filename, const std::string& params, int j){
-	dumpfile << buffer;
-	//WHEN BUFFER IS COPIED TO FILE, SAVE PARAMS
-	if (!filename.empty()){
-		auto it = buffer.end();
-		std::string lastword(it -j - 1, it);
-		WriteStateFile(filename, params + lastword);
-	}
-	std::cout << "[+] Words saved to file." << std::endl;
-	buffer = "";//PTR AS REF. -> FREE HERE
+void FileHandler::LogFile(const char *buffer, const std::string& filename, const std::string& params, int size){
+	fwrite(buffer, sizeof(char), size, dumpfile);
 }

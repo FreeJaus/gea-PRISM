@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Singleton.h"
 #include <fstream>
+#include <stdio.h>
 #include <string>
-#include <mutex>
 
 class FileHandler final : public Singleton<FileHandler> {
 
@@ -28,13 +28,11 @@ private:
 
 	friend class Singleton<FileHandler>;
 
-	std::mutex mwrite;
-
-	std::ofstream dumpfile;
-
-	void WriteStateFile(const std::string& filename, const std::string& params);
+	FILE *dumpfile;
 
 	FileHandler() : Singleton<FileHandler>() { }
+
+	void WriteStateFile(const std::string& filename, const std::string& params);
 
 public:
 
@@ -42,7 +40,6 @@ public:
 	void OpenDumpFile(const std::string &filename);
 	void CloseDumpFile();
 	std::string ReadStateFile(const std::string& filename);
-	void LogFileMB(const std::string buffer, const std::string& filename, const std::string& params, int j);
-	void LogFile(std::string& buffer, const std::string& filename, const std::string& params, int j);
+	void LogFile(const char *buffer, const std::string& filename, const std::string& params, int size);
 
 };

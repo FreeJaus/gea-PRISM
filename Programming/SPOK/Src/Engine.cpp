@@ -25,11 +25,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <thread>
 #include <sstream>
 #include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdio.h>
 
 Engine::Engine() : Singleton<Engine>(){
-	i= 1, j= 5, nhash = 0, bfpos = 0, mbuffer;
+	i= 1, j= 5, nhash = 0, bfpos = 0, bufflimit = 0;
 	totalstorage = 0;
-	verbose = false, mbuffer = false;
+	verbose = false;
 	CHARSET = "abcdefghijklmnopqrstuvwxyz";
 }
 
@@ -44,8 +47,8 @@ void Engine::ExecuteArgs(int argc, char **argv){
 	std::string _charset;
 
 	 //Check if no repetition, no ilegal commands and exist commands with arguments
-	if (ParamHandler::GetInstance()->ParseArguments(args, &paramcount, &verbose, &version, 
-		&mbuffer, dumpfile, loadfile, savefile, _charset, interval, hash, lastword)){
+	if (ParamHandler::GetInstance()->ParseArguments(args, &paramcount, &verbose, &version,
+		dumpfile, loadfile, savefile, _charset, interval, hash, lastword)){
 		if (version)
 			if (paramcount == 1){
 				std::cout << VERSION << std::endl;
@@ -62,8 +65,8 @@ void Engine::ExecuteArgs(int argc, char **argv){
 				//split params by whitespace
 				args = Split(params);
 				//Check if load file params are correct
-				if (!ParamHandler::GetInstance()->ParseArguments(args, &paramcount, &verbose, &version, 
-					&mbuffer, dumpfile, loadfile, savefile, _charset, interval, hash, lastword)){
+				if (!ParamHandler::GetInstance()->ParseArguments(args, &paramcount, &verbose, &version,
+					dumpfile, loadfile, savefile, _charset, interval, hash, lastword)){
 					std::cout << "Failed to load state file!" << std::endl;
 					return;
 				}
@@ -93,8 +96,6 @@ std::vector<std::string> Engine::Split(const std::string& str){
 
 bool Engine::FillParams(const std::string& _charset){
 	bool ret = true;
-	if (dumpfile.empty())
-			ret = false;
 
 	if (!_charset.empty())
 		CHARSET = _charset;
@@ -116,33 +117,34 @@ bool Engine::FillParams(const std::string& _charset){
 			ret=false;
 		
 	}else{
-		i = 1, j = 5;
+		interval = "1,5";
 	}
 
-	if (!hash.empty())
+	if (!hash.empty()){
 		nhash = hash.at(0) - '0';
 		if (nhash < 0 || nhash > 3)
-		ret = false;
-	else
-		nhash = 0;
+			ret = false;
+	}else{
+		hash = "0";
+	}
 
 	if (!savefile.empty()){
 		if (verbose)
 			saveparams = "-v ";
-		saveparams += "-g " + dumpfile + " -c " + CHARSET + " -i " + interval + " -h " + std::to_string(nhash) + " -w ";
+		saveparams += "-g " + dumpfile + " -c " + CHARSET + " -i " + interval + " -h " + hash + " -w ";
 	}
 
-	if (mbuffer < 0) //FORCE N_0 Domain
-		ret = false;
-	
 	return ret;
 
 }
 
 void Engine::BeginExecution(){
+	//Dont call CalcBuffLimit here (Save iterations)
 	if (!nhash){
-		for (int k = i; k <= j; k++)
+		for (int k = i; k <= j; k++){
 			totalstorage += std::pow(CHARSET.size(), k)*(k+1);
+			bufflimit += k+1;
+		}
 	}else{
 		int m = 32;
 		for (int k = i; k <= j; k++)
@@ -152,30 +154,43 @@ void Engine::BeginExecution(){
 		if (nhash == 3)
 			m+=64;
 		m+=nhash;
+		bufflimit = m;
 		totalstorage *= m;
 		std::cout << "Hashing with " << nhash << " algorithm(s)" << std::endl;
 	}
-
+	bufflimit = BUFFSIZE - (BUFFSIZE % bufflimit); 
 	totalstorage /= (1024*1024);
 	std::cout << "Total storage needed: " << totalstorage << " MB" << std::endl;
-	FileHandler::GetInstance()->OpenDumpFile(dumpfile);
-
 	int start = i;
-
+	if (!dumpfile.empty()) FileHandler::GetInstance()->OpenDumpFile(dumpfile);
 	FillNodeList();
 	Permute();
-
-	//WRITE REMAINING WORDS TO FILE
-	if (!mbuffer){
-		while (buff.size()) std::this_thread::sleep_for(std::chrono::milliseconds(50));
-		buff = buffer;
-		FileHandler::GetInstance()->LogFile(buff, std::ref(savefile), std::ref(saveparams), j);
-	}else{
-		FileHandler::GetInstance()->LogFileMB(std::string(buffer), std::ref(savefile), std::ref(saveparams), j);
-	}
-	 
-	FileHandler::GetInstance()->CloseDumpFile();
+	//WRITE REMAINING WORDS TO FILE OR PRINT LAST WORDS
+	if (!dumpfile.empty())
+	 	FileHandler::GetInstance()->LogFile(buffer, savefile, saveparams, bfpos);
+	else
+		PrintWords();
+	if (!dumpfile.empty()) FileHandler::GetInstance()->CloseDumpFile();
 	std::cout << "All words of length " << start << "," << j << " have been generated." << std::endl;
+}
+
+void Engine::CalculateBuffLimit(){
+	//Avoid buffer overflow by calculating exact rounds of buffering
+	if (i > j) return;
+	bufflimit = 0;
+	if (!nhash){
+		for (int k = i; k <= j; k++)
+			bufflimit += k+1;
+	}else{
+		bufflimit = 32;
+		if (nhash > 1)
+			bufflimit+=40;
+		if (nhash == 3)
+			bufflimit+=64;
+		//Adds newline value per hash algorithm
+		bufflimit+=nhash;
+	}
+	bufflimit = BUFFSIZE -  (BUFFSIZE % bufflimit);
 }
 
 void Engine::FillNodeList(){
@@ -212,12 +227,13 @@ int Engine::GetLetterPos(char c){
 }
 
 void Engine::Permute(){
-	int seqcount = 0;
+	int seqcount = 0, valuepos = 0;
 	Node *node = nodes.back();
 	start = std::chrono::steady_clock::now();
 	while(node != nullptr){
-		if (node->getValuePos() < CHARSET.size()-1){
-			node->Permute(CHARSET.at(node->getValuePos() + 1));
+		valuepos = node->getValuePos();
+		if (valuepos < CHARSET.size()-1){
+			node->Permute(CHARSET.at(valuepos + 1));
 			node = nodes.back();
 			if (verbose)
 				words++;
@@ -225,8 +241,12 @@ void Engine::Permute(){
 			GenerateWords();
 		}else{
 			if (!node->IsSignaled())
-				if (++seqcount == i) //SAVE FUTURE ITERATIONS ON SUBSTR
+				//SAVE FUTURE ITERATIONS ON SUBSTR
+				if (++seqcount == i){ 
 					i++;
+					//Re-calculate buffer limit to avoid overflow
+					CalculateBuffLimit();
+				}
 			node->Reset();
 			node = node->Prev();
 		}
@@ -247,23 +267,25 @@ void Engine::ShowVerbose(){
 
 void Engine::SubStrCrypto(){
 	int start = 0;
+	int offset = j;
 	for (int k = i; k <= j; k++){
+		char word[offset+1];
 		int p = 0;
-		char word[j-start];
 		for (int k = start; k < j; k++){
 			word[p] = nodes.at(k)->getValue();
 			p++;
 		}
-		Crypto::GetInstance()->HashWord(buffer, word, nhash, &bfpos);
+		Crypto::GetInstance()->HashWord(buffer, word, nhash, &bfpos, offset);
+		offset--;
 		start++;
-		}
+	}
 }
 
 
 void Engine::SubStrWord(){
 	int start =0;
-	int p = start;
-	int offset = j - start;
+	int p = 0;
+	int offset = j;
 	for (int h = i; h <= j; h++){
 		for (int k = bfpos; k < bfpos + offset; k++){
 			buffer[k] = nodes.at(p)->getValue();
@@ -284,25 +306,22 @@ void Engine::GenerateWords(){
 	else
 		SubStrCrypto();
 
-	if (bfpos > BUFFSIZE-999){ //BUFF > 400 MB
+	if (bfpos >= bufflimit){
 		if (verbose)
 			ShowVerbose();
-		//WAIT UNTIL BUFFER IS FREED IN THREAD. AVOID DATA CORRUPTION
-		std::thread t;
-		if (mbuffer){
-			//WAIT SOME TIME TO NOT OVERLAP BUFFERS
-			std::this_thread::sleep_for(std::chrono::milliseconds(mbuffer));
-			t = std::thread(&FileHandler::LogFileMB, FileHandler::GetInstance(), std::string(buffer), std::ref(savefile), std::ref(saveparams), j); //TODO LASTWORD!
-		}else{
-			//SINGLE BUFFER MODE. WAIT UNTIL REF BUFFER IS FREED
-			while (buff.size()) std::this_thread::sleep_for(std::chrono::milliseconds(50));
-			buff = buffer;
-			t = std::thread(&FileHandler::LogFile, FileHandler::GetInstance(), std::ref(buff), std::ref(savefile), std::ref(saveparams), j); //TODO LASTWORD!
-		}
+		
+		if (!dumpfile.empty())
+			FileHandler::GetInstance()->LogFile(buffer, savefile, saveparams, bfpos);
+		else
+			PrintWords();
+		
 		memset(buffer,0,bfpos);
-		t.detach();
 		bfpos = 0;
 	}
+}
+
+void Engine::PrintWords(){
+	printf("%s", buffer);
 }
 
 void Engine::PrintMenu(){

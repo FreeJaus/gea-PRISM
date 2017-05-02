@@ -28,7 +28,7 @@ Param* ParamHandler::IsInList(const std::vector<Param*>& commands, const std::st
 	return p;
 }
 
-bool ParamHandler::ParseArguments(const std::vector<std::string>& args, int* paramcount, bool *verbose, bool *version, int *mbuffer, std::string& dumpfile, 
+bool ParamHandler::ParseArguments(const std::vector<std::string>& args, int* paramcount, bool *verbose, bool *version, std::string& dumpfile, 
 	std::string& loadfile, std::string& savefile, std::string& charset, std::string& interval, std::string& hash, std::string& lastword){
 
 	bool ret = true;
@@ -43,7 +43,6 @@ bool ParamHandler::ParseArguments(const std::vector<std::string>& args, int* par
 	Param *sParam = new Param("-s", "--save", true); commands.push_back(sParam);
 	Param *hParam = new Param("-h", "--hash", true); commands.push_back(hParam);
 	Param *lwParam = new Param("-w", "--lastword", true); commands.push_back(lwParam);
-	Param *mParam = new Param("-m", "--multibuffer", true); commands.push_back(mParam);
 
 	Param *curParam = nullptr, *c = nullptr;
 	auto it = args.begin();
@@ -81,9 +80,6 @@ bool ParamHandler::ParseArguments(const std::vector<std::string>& args, int* par
 	*verbose = vParam->IsMarked(), *version = verParam->IsMarked();
 	dumpfile = gParam->GetArgument(), loadfile = lParam->GetArgument(), savefile = sParam->GetArgument();
 	charset = cParam->GetArgument(), interval = iParam->GetArgument(), hash = hParam->GetArgument(), lastword = lwParam->GetArgument();
-
-	if (!mParam->GetArgument().empty())
-		*mbuffer = std::stoi(mParam->GetArgument());
 
 	for (auto it = commands.begin(); it != commands.end(); it++)
 		delete *it;

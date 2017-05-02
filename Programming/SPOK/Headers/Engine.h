@@ -29,15 +29,14 @@ private:
 
 	friend class Singleton<Engine>;
 
-	static const unsigned int BUFFSIZE = 400*1024*1024;
+	static const unsigned int BUFFSIZE = 2*1024*1024;
 	const std::string VERSION = "S.P.O.K v1.0.3 April 2017";
 	std::string buff;
 	char buffer[BUFFSIZE];
-
 	std::chrono::time_point<std::chrono::steady_clock> start;
 	long words;
 
-	int i, j, nhash, bfpos, mbuffer;
+	int i, j, nhash, bfpos, bufflimit;
 	long double totalstorage;
 	bool verbose;
 
@@ -47,19 +46,28 @@ private:
 
 	Engine();
 
-	void ShowVerbose();
+	/* FUNCS RELATED TO EARLY EXECUTION */
 	void BeginExecution();
-	void GenerateWords();
-	void Permute();
-
+	bool FillParams(const std::string& _charset);
 	void FillNodeList();
+
+	/* FUNCS RELATED TO WORD GENERATION */
+
+	void Permute();
+	void GenerateWords();
+
+	/* HELPER FUNCTIONS */
+
+	void CalculateBuffLimit();
+	std::vector<std::string> Split(const std::string& str);
 	int GetLetterPos(char c);
 
-	bool FillParams(const std::string& _charset);
-	std::vector<std::string> Split(const std::string& str);
+	/* FUNCS RELATED TO BUFFERING LOGIC */
 
+	void ShowVerbose();
 	void SubStrWord();
 	void SubStrCrypto();
+	void PrintWords();
 
 public:
 
