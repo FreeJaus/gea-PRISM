@@ -30,7 +30,7 @@ private:
 	friend class Singleton<Engine>;
 
 	static const unsigned int BUFFSIZE = 2*1024*1024;
-	const std::string VERSION = "S.P.O.K v1.0.3 April 2017";
+	const std::string VERSION = "S.P.O.K v1.0.4 May 2017";
 	std::string buff;
 	char buffer[BUFFSIZE];
 	std::chrono::time_point<std::chrono::steady_clock> start;

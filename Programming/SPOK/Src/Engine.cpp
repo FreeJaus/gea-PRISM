@@ -20,14 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../Headers/ParamHandler.h"
 #include "../Headers/Crypto.h"
 #include <iostream>
-#include <algorithm>
 #include <cmath>
-#include <thread>
 #include <sstream>
 #include <string.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdio.h>
 
 Engine::Engine() : Singleton<Engine>(){
 	i= 1, j= 5, nhash = 0, bfpos = 0, bufflimit = 0;
@@ -338,6 +333,5 @@ void Engine::PrintMenu(){
 	std::cout << "	-i <min,max>, --interval <min,max>	(generate all words of length min & max, default is: <0,5>)" <<std::endl;
 	std::cout << "	-h <number>, --hash <number>		(hash output words into FILE, algorithms: MD5, SHA-1, SHA-256)" << std::endl;
 	std::cout << "	-s [SAVEFILE], --save [SAVEFILE]	(save current session state in SAVEFILE)" << std::endl;
-	std::cout << "	-m, --multibuffer <time>			(waits <time> milliseconds before passing a copy of main buffer to thread. Disabled by default" << std::endl;
 	std::cout << "\n Example: spok --generate words.txt --save save.sav --interval 4,8 --charset '01234567890ABCDEF' --hash 3" << std::endl;
 }
